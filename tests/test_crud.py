@@ -2,17 +2,10 @@ import pytest
 
 from pydantic import ValidationError
 from datetime import timedelta
-from app.crud import (
-    create_voucher,
-    get_voucher_by_code,
-    get_valid_voucher_by_code,
-    list_vouchers,
-    update_voucher,
-    deactivate_voucher,
-    generate_voucher_code
-)
-from app.schemas import VoucherCreate, VoucherUpdate
-from app.models import Voucher
+from app.vouchers.crud import generate_voucher_code, create_voucher, get_voucher_by_code, get_valid_voucher_by_code, \
+    list_vouchers, update_voucher, deactivate_voucher
+from app.vouchers.schemas import VoucherCreate, VoucherUpdate
+from app.vouchers.models import Voucher
 
 
 class TestVoucherCodeGeneration:

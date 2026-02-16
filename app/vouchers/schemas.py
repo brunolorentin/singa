@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional
 
+
 class VoucherCreate(BaseModel):
     discount_percentage: float = Field(..., gt=0, le=100, description="Discount percentage between 0 and 100")
     expiration_date: datetime = Field(..., description="Voucher expiration date")

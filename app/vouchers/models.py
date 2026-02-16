@@ -1,8 +1,6 @@
+from app.database import Base
 from sqlalchemy import Column, String, Float, DateTime, Boolean
 from sqlalchemy.sql import func
-from app.database import Base
-from datetime import datetime
-import uuid
 
 class Voucher(Base):
     __tablename__ = "vouchers"

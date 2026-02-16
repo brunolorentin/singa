@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
-from app.routes import router
+from app.vouchers.routes import router as  vouchers_router
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 # Include routes
-app.include_router(router, prefix="/api/v1/vouchers", tags=["vouchers"])
+app.include_router(vouchers_router, prefix="/api/v1")
 
 @app.get("/health")
 def health_check():
