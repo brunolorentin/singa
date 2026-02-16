@@ -2,4 +2,4 @@
 
 > Write a set of tests for it
 
-> I'm getting a lot of " sqlite3.OperationalError: no such table: vouchers" when running the tests, explain me why and how to fix it
+> I'm getting a lot of "sqlite3.OperationalError: no such table: vouchers" when running the tests, explain me why and how to fix it

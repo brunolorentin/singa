@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional
 
@@ -6,13 +6,13 @@ class VoucherCreate(BaseModel):
     discount_percentage: float = Field(..., gt=0, le=100, description="Discount percentage between 0 and 100")
     expiration_date: datetime = Field(..., description="Voucher expiration date")
 
-    @validator("discount_percentage")
+    @field_validator("discount_percentage")
     def validate_discount(cls, v):
         if v <= 0 or v > 100:
             raise ValueError("Discount percentage must be between 0 and 100")
         return v
 
-    @validator("expiration_date")
+    @field_validator("expiration_date")
     def validate_expiration_date(cls, v):
         if v.replace(tzinfo=None) <= datetime.now():
             raise ValueError("Expiration date must be in the future")
@@ -23,13 +23,13 @@ class VoucherUpdate(BaseModel):
     discount_percentage: Optional[float] = Field(None, gt=0, le=100)
     expiration_date: Optional[datetime] = None
 
-    @validator("discount_percentage")
+    @field_validator("discount_percentage")
     def validate_discount(cls, v):
         if v is not None and (v <= 0 or v > 100):
             raise ValueError("Discount percentage must be between 0 and 100")
         return v
 
-    @validator("expiration_date")
+    @field_validator("expiration_date")
     def validate_expiration_date(cls, v):
         if v.replace(tzinfo=None) is not None and v <= datetime.now():
             raise ValueError("Expiration date must be in the future")

@@ -1,5 +1,7 @@
 import pytest
-from datetime import datetime, timedelta
+
+from pydantic import ValidationError
+from datetime import timedelta
 from app.crud import (
     create_voucher,
     get_voucher_by_code,
@@ -79,6 +81,30 @@ class TestCreateVoucher:
             )
             voucher = create_voucher(db, voucher_data)
             assert voucher.discount_percentage == discount
+
+    def test_create_voucher_with_too_low_discount(self, valid_future_date):
+        """Test successful voucher creation"""
+        with pytest.raises(ValidationError):
+            VoucherCreate(
+                discount_percentage=-1,
+                expiration_date=valid_future_date
+            )
+
+    def test_create_voucher_with_too_high_discount(self, valid_future_date):
+        """Test successful voucher creation"""
+        with pytest.raises(ValidationError):
+            VoucherCreate(
+                discount_percentage=101,
+                expiration_date=valid_future_date
+            )
+
+    def test_create_voucher_with_past_expiration_date(self, expired_date):
+        """Test successful voucher creation"""
+        with pytest.raises(ValidationError):
+            VoucherCreate(
+                discount_percentage=101,
+                expiration_date=expired_date
+            )
 
 
 class TestGetVoucher:
@@ -203,6 +229,16 @@ class TestUpdateVoucher:
         assert updated_voucher is not None
         assert updated_voucher.discount_percentage == 25.0
 
+    def test_update_too_low_discount_percentage(self):
+        """Test updating too low discount percentage"""
+        with pytest.raises(ValidationError):
+            VoucherUpdate(discount_percentage=-1)
+
+    def test_update_too_high_discount_percentage(self):
+        """Test updating too high discount percentage"""
+        with pytest.raises(ValidationError):
+            VoucherUpdate(discount_percentage=101)
+
     def test_update_expiration_date(self, db, sample_voucher, valid_future_date):
         """Test updating expiration date"""
         new_expiration = valid_future_date + timedelta(days=30)
@@ -211,6 +247,11 @@ class TestUpdateVoucher:
 
         assert updated_voucher is not None
         assert updated_voucher.expiration_date == new_expiration
+
+    def test_update_past_expiration_date(self, expired_date):
+        """Test updating past expiration date"""
+        with pytest.raises(ValidationError):
+            VoucherUpdate(expiration_date=expired_date)
 
     def test_update_both_fields(self, db, sample_voucher, valid_future_date):
         """Test updating both fields"""
