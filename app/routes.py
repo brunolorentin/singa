@@ -63,21 +63,6 @@ def get_voucher(code: str, db: Session = Depends(get_db)):
     return voucher
 
 
-@router.get("/check/{code}", response_model=VoucherResponse)
-def check_voucher(code: str, db: Session = Depends(get_db)):
-    """
-    Check if a voucher exists (admin endpoint)
-    
-    - **code**: Voucher code
-    """
-    voucher = crud.get_voucher_by_code(db=db, code=code)
-    
-    if not voucher:
-        raise HTTPException(status_code=404, detail="Voucher not found")
-    
-    return voucher
-
-
 @router.put("/{code}", response_model=VoucherResponse)
 def update_voucher(
     code: str,
@@ -119,18 +104,3 @@ def deactivate_voucher(code: str, db: Session = Depends(get_db)):
         code=deactivated_voucher.code,
         active=deactivated_voucher.active
     )
-
-
-@router.delete("/{code}", status_code=204)
-def delete_voucher(code: str, db: Session = Depends(get_db)):
-    """
-    Delete a voucher
-    
-    - **code**: Voucher code
-    """
-    success = crud.delete_voucher(db=db, code=code)
-    
-    if not success:
-        raise HTTPException(status_code=404, detail="Voucher not found")
-    
-    return None

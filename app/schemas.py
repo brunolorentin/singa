@@ -1,37 +1,37 @@
 from pydantic import BaseModel, Field, validator
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 class VoucherCreate(BaseModel):
-    discount_percentage: float = Field(..., gt=0, le=100, description="Discount percentage between 0 and 100")
+    discount_percentage: float = Field(..., gt=0, le=1, description="Discount percentage between 0 and 1")
     expiration_date: datetime = Field(..., description="Voucher expiration date")
 
     @validator("discount_percentage")
     def validate_discount(cls, v):
-        if v <= 0 or v > 100:
+        if v <= 0 or v > 1:
             raise ValueError("Discount percentage must be between 0 and 100")
         return v
 
     @validator("expiration_date")
     def validate_expiration_date(cls, v):
-        if v <= datetime.now():
+        if v <= datetime.now(timezone.utc):
             raise ValueError("Expiration date must be in the future")
         return v
 
 
 class VoucherUpdate(BaseModel):
-    discount_percentage: Optional[float] = Field(None, gt=0, le=100)
+    discount_percentage: Optional[float] = Field(None, gt=0, le=1)
     expiration_date: Optional[datetime] = None
 
     @validator("discount_percentage")
     def validate_discount(cls, v):
-        if v is not None and (v <= 0 or v > 100):
+        if v is not None and (v <= 0 or v > 1):
             raise ValueError("Discount percentage must be between 0 and 100")
         return v
 
     @validator("expiration_date")
     def validate_expiration_date(cls, v):
-        if v is not None and v <= datetime.now():
+        if v is not None and v <= datetime.now(timezone.utc):
             raise ValueError("Expiration date must be in the future")
         return v
 

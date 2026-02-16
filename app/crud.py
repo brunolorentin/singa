@@ -3,13 +3,9 @@ from app.models import Voucher
 from app.schemas import VoucherCreate, VoucherUpdate
 from datetime import datetime
 import uuid
-import string
-import random
 
 def generate_voucher_code(length: int = 12) -> str:
-    """Generate a unique voucher code"""
-    characters = string.ascii_uppercase + string.digits
-    return ''.join(random.choices(characters, k=length))
+    return str(uuid.uuid4())
 
 def create_voucher(db: Session, voucher_data: VoucherCreate) -> Voucher:
     """Create a new voucher"""
@@ -91,15 +87,3 @@ def deactivate_voucher(db: Session, code: str) -> Voucher | None:
     db.commit()
     db.refresh(voucher)
     return voucher
-
-
-def delete_voucher(db: Session, code: str) -> bool:
-    """Delete a voucher"""
-    voucher = db.query(Voucher).filter(Voucher.code == code).first()
-    
-    if not voucher:
-        return False
-    
-    db.delete(voucher)
-    db.commit()
-    return True
