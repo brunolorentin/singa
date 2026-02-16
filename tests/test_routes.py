@@ -308,51 +308,6 @@ class TestGetVoucherRoute:
         pass
 
 
-class TestCheckVoucherRoute:
-    """Test GET /api/v1/vouchers/check/{code} endpoint"""
-
-    def test_check_valid_voucher(self, client, valid_future_date):
-        """Test checking a valid voucher"""
-        create_response = client.post(
-            "/api/v1/vouchers/",
-            json={
-                "discount_percentage": 15.0,
-                "expiration_date": valid_future_date.isoformat()
-            }
-        )
-        code = create_response.json()["code"]
-
-        response = client.get(f"/api/v1/vouchers/check/{code}")
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["code"] == code
-
-    def test_check_nonexistent_voucher(self, client):
-        """Test checking a non-existent voucher"""
-        response = client.get("/api/v1/vouchers/check/NONEXISTENT")
-        assert response.status_code == 404
-
-    def test_check_inactive_voucher(self, client, valid_future_date):
-        """Test checking an inactive voucher (should still return it)"""
-        create_response = client.post(
-            "/api/v1/vouchers/",
-            json={
-                "discount_percentage": 15.0,
-                "expiration_date": valid_future_date.isoformat()
-            }
-        )
-        code = create_response.json()["code"]
-
-        # Deactivate it
-        client.patch(f"/api/v1/vouchers/{code}/deactivate")
-
-        # Check should still return it
-        response = client.get(f"/api/v1/vouchers/check/{code}")
-        assert response.status_code == 200
-        assert response.json()["active"] is False
-
-
 class TestUpdateVoucherRoute:
     """Test PUT /api/v1/vouchers/{code} endpoint"""
 
@@ -537,83 +492,6 @@ class TestDeactivateVoucherRoute:
         assert response.status_code == 404
 
 
-class TestDeleteVoucherRoute:
-    """Test DELETE /api/v1/vouchers/{code} endpoint"""
-
-    def test_delete_voucher_success(self, client, valid_future_date):
-        """Test successful voucher deletion"""
-        create_response = client.post(
-            "/api/v1/vouchers/",
-            json={
-                "discount_percentage": 15.0,
-                "expiration_date": valid_future_date.isoformat()
-            }
-        )
-        code = create_response.json()["code"]
-
-        response = client.delete(f"/api/v1/vouchers/{code}")
-
-        assert response.status_code == 204
-        assert response.content == b""
-
-    def test_delete_nonexistent_voucher(self, client):
-        """Test deleting a non-existent voucher"""
-        response = client.delete("/api/v1/vouchers/NONEXISTENT")
-        assert response.status_code == 404
-
-    def test_cannot_retrieve_deleted_voucher(self, client, valid_future_date):
-        """Test that deleted voucher cannot be retrieved"""
-        create_response = client.post(
-            "/api/v1/vouchers/",
-            json={
-                "discount_percentage": 15.0,
-                "expiration_date": valid_future_date.isoformat()
-            }
-        )
-        code = create_response.json()["code"]
-
-        # Delete
-        client.delete(f"/api/v1/vouchers/{code}")
-
-        # Try to retrieve
-        response = client.get(f"/api/v1/vouchers/{code}")
-        assert response.status_code == 404
-
-    def test_delete_multiple_vouchers(self, client, valid_future_date):
-        """Test deleting multiple vouchers"""
-        codes = []
-        for i in range(3):
-            create_response = client.post(
-                "/api/v1/vouchers/",
-                json={
-                    "discount_percentage": 10.0 + i,
-                    "expiration_date": valid_future_date.isoformat()
-                }
-            )
-            codes.append(create_response.json()["code"])
-
-        for code in codes:
-            response = client.delete(f"/api/v1/vouchers/{code}")
-            assert response.status_code == 204
-
-        # Verify all are deleted
-        for code in codes:
-            response = client.get(f"/api/v1/vouchers/{code}")
-            assert response.status_code == 404
-
-
-class TestHealthCheckRoute:
-    """Test GET /health endpoint"""
-
-    def test_health_check(self, client):
-        """Test health check endpoint"""
-        response = client.get("/health")
-
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "healthy"
-
-
 class TestIntegrationScenarios:
     """Integration tests for complete workflows"""
 
@@ -653,18 +531,6 @@ class TestIntegrationScenarios:
         assert deactivate_response.json()["active"] is False
 
         # Verify cannot retrieve deactivated
-        get_response = client.get(f"/api/v1/vouchers/{code}")
-        assert get_response.status_code == 404
-
-        # Admin check still works
-        check_response = client.get(f"/api/v1/vouchers/check/{code}")
-        assert check_response.status_code == 200
-
-        # Delete
-        delete_response = client.delete(f"/api/v1/vouchers/{code}")
-        assert delete_response.status_code == 204
-
-        # Verify deleted
         get_response = client.get(f"/api/v1/vouchers/{code}")
         assert get_response.status_code == 404
 

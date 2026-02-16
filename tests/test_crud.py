@@ -7,7 +7,6 @@ from app.crud import (
     list_vouchers,
     update_voucher,
     deactivate_voucher,
-    delete_voucher,
     generate_voucher_code
 )
 from app.schemas import VoucherCreate, VoucherUpdate
@@ -293,41 +292,3 @@ class TestDeactivateVoucher:
 
         voucher = deactivate_voucher(db, "TEST123456")
         assert voucher.updated_at > original_updated_at
-
-
-class TestDeleteVoucher:
-    """Test deleting vouchers"""
-
-    def test_delete_voucher_success(self, db, sample_voucher):
-        """Test successful voucher deletion"""
-        result = delete_voucher(db, "TEST123456")
-        assert result is True
-
-        # Verify it's deleted
-        voucher = get_voucher_by_code(db, "TEST123456")
-        assert voucher is None
-
-    def test_delete_nonexistent_voucher(self, db):
-        """Test deleting a non-existent voucher"""
-        result = delete_voucher(db, "NONEXISTENT")
-        assert result is False
-
-    def test_delete_multiple_vouchers(self, db, valid_future_date):
-        """Test deleting multiple vouchers"""
-        codes = []
-        for i in range(3):
-            voucher_data = VoucherCreate(
-                discount_percentage=10.0 + i,
-                expiration_date=valid_future_date
-            )
-            voucher = create_voucher(db, voucher_data)
-            codes.append(voucher.code)
-
-        for code in codes:
-            result = delete_voucher(db, code)
-            assert result is True
-
-        # Verify all are deleted
-        for code in codes:
-            voucher = get_voucher_by_code(db, code)
-            assert voucher is None

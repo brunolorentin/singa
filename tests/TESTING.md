@@ -20,17 +20,14 @@ Tests for the CRUD operations layer (business logic):
 - Listing vouchers with pagination
 - Updating vouchers
 - Deactivating vouchers
-- Deleting vouchers
 
 ### 3. `tests/test_routes.py`
 Tests for API endpoints:
 - POST /api/v1/vouchers/ (Create)
 - GET /api/v1/vouchers/ (List)
 - GET /api/v1/vouchers/{code} (Retrieve valid)
-- GET /api/v1/vouchers/check/{code} (Admin check)
 - PUT /api/v1/vouchers/{code} (Update)
 - PATCH /api/v1/vouchers/{code}/deactivate (Deactivate)
-- DELETE /api/v1/vouchers/{code} (Delete)
 - Integration tests and workflows
 
 ## Installation
@@ -143,11 +140,6 @@ pytest --cov=app --cov-report=html --cov-report=term-missing
 - Tests already inactive vouchers
 - Tests timestamp updates
 
-#### TestDeleteVoucher
-- Tests successful deletion
-- Tests non-existent voucher handling
-- Tests verifying deletion
-
 ### Routes Layer Tests (`test_routes.py`)
 
 #### TestCreateVoucherRoute
@@ -166,11 +158,6 @@ pytest --cov=app --cov-report=html --cov-report=term-missing
 - Tests 404 errors
 - Tests validation
 
-#### TestCheckVoucherRoute
-- Tests admin endpoint
-- Tests checking inactive vouchers
-- Tests non-existent vouchers
-
 #### TestUpdateVoucherRoute
 - Tests PATCH requests
 - Tests validation
@@ -180,11 +167,6 @@ pytest --cov=app --cov-report=html --cov-report=term-missing
 - Tests deactivation endpoint
 - Tests response format
 - Tests repeated deactivations
-
-#### TestDeleteVoucherRoute
-- Tests deletion endpoint
-- Tests 204 responses
-- Tests non-existent vouchers
 
 #### TestIntegrationScenarios
 - Tests complete voucher lifecycle

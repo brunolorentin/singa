@@ -2,10 +2,13 @@ from sqlalchemy.orm import Session
 from app.models import Voucher
 from app.schemas import VoucherCreate, VoucherUpdate
 from datetime import datetime
-import uuid
+import string
+import random
 
 def generate_voucher_code(length: int = 12) -> str:
-    return str(uuid.uuid4())
+    """Generate a unique voucher code"""
+    characters = string.ascii_uppercase + string.digits
+    return ''.join(random.choices(characters, k=length))
 
 def create_voucher(db: Session, voucher_data: VoucherCreate) -> Voucher:
     """Create a new voucher"""
