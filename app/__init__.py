@@ -1,0 +1,1 @@
+"""FastAPI Voucher Management Application"""
